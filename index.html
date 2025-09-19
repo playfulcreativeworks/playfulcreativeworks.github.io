@@ -53,12 +53,8 @@
     .emoji-display {
       font-size: 6em;
       margin: 20px 0;
-      transition: transform 0.3s ease;
       display: inline-block;
-    }
-
-    .emoji-display:hover {
-      transform: scale(1.1);
+      transition: transform 0.2s ease;
     }
 
     #meter-container {
@@ -83,7 +79,7 @@
       height: 100%;
       background: #f3f4f6;
       border-right: 3px solid #ffffff;
-      transition: background-color 0.6s ease;
+      transition: background-color 0.3s ease;
       position: relative;
     }
 
@@ -191,8 +187,6 @@
         transform: translateY(-100px) scale(1.5);
       }
     }
-
-    /* Remove all the complex media queries and replace with simple responsive approach */
   </style>
 </head>
 <body>
@@ -256,18 +250,15 @@
 
     function updateDisplay() {
       const currentStage = getCurrentStage();
-      
-      // Update emoji with bouncy pop animation
-      emoji.style.transform = "scale(0.7) rotate(-5deg)";
+
+      // Update emoji instantly, then pop animation
+      emoji.textContent = currentStage.emoji;
+      emoji.style.transform = "scale(1.2)";
       setTimeout(() => {
-        emoji.textContent = currentStage.emoji;
-        emoji.style.transform = "scale(1.2) rotate(2deg)";
+        emoji.style.transform = "scale(1)";
       }, 200);
-      setTimeout(() => {
-        emoji.style.transform = "scale(1) rotate(0deg)";
-      }, 400);
-      
-      // Update text and level
+
+      // Update text and level instantly
       levelText.textContent = currentStage.text;
       levelDisplay.textContent = `Level ${Math.ceil(behaviorLevel / 10)}`;
       
@@ -276,52 +267,33 @@
       const filledSegments = Math.floor((behaviorLevel / 100) * 10);
       
       segments.forEach((segment, index) => {
-        // Clear all classes
         segment.className = 'segment';
-        
         if (index < filledSegments) {
-          // Determine color based on position
-          if (index < 2) {
-            segment.classList.add('filled-red');
-          } else if (index < 4) {
-            segment.classList.add('filled-orange');
-          } else if (index < 6) {
-            segment.classList.add('filled-gray');
-          } else if (index < 8) {
-            segment.classList.add('filled-blue');
-          } else {
-            segment.classList.add('filled-green');
-          }
+          if (index < 2) segment.classList.add('filled-red');
+          else if (index < 4) segment.classList.add('filled-orange');
+          else if (index < 6) segment.classList.add('filled-gray');
+          else if (index < 8) segment.classList.add('filled-blue');
+          else segment.classList.add('filled-green');
         }
       });
       
-      // Special effects for excellent behavior
       if (behaviorLevel >= 81) {
         createCelebration();
       }
     }
 
     function changeBehavior(amount) {
-      const oldLevel = behaviorLevel;
       behaviorLevel = Math.max(0, Math.min(100, behaviorLevel + amount));
-      
       updateDisplay();
     }
 
     function resetMeter() {
       behaviorLevel = 50;
       updateDisplay();
-      
-      // Fun reset animation
-      const container = document.querySelector('.container');
-      container.style.animation = "none";
-      setTimeout(() => {
-        container.style.animation = "";
-      }, 10);
     }
 
     function createCelebration() {
-      if (Math.random() > 0.7) { // Only sometimes to avoid spam
+      if (Math.random() > 0.7) {
         const celebration = document.createElement('div');
         celebration.className = 'celebration';
         celebration.textContent = ['🎉', '⭐', '🌟', '✨', '🎊'][Math.floor(Math.random() * 5)];
@@ -335,19 +307,18 @@
       }
     }
 
-    // Initialize the display
+    // Initialize
     updateDisplay();
 
-    // Add click functionality to segments
+    // Segment click
     document.querySelectorAll('.segment').forEach((segment, index) => {
       segment.addEventListener('click', function() {
-        const targetLevel = (index + 1) * 10;
-        behaviorLevel = targetLevel;
+        behaviorLevel = (index + 1) * 10;
         updateDisplay();
       });
     });
 
-    // Add keyboard shortcuts for teachers
+    // Keyboard shortcuts
     document.addEventListener('keydown', function(event) {
       switch(event.key) {
         case '+':
