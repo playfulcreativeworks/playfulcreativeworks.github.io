@@ -21,6 +21,7 @@
       justify-content: center;
       color: #374151;
       padding: 20px;
+      transition: background-color 1s ease;
     }
 
     .container {
@@ -53,8 +54,12 @@
     .emoji-display {
       font-size: 6em;
       margin: 20px 0;
+      transition: transform 0.3s ease;
       display: inline-block;
-      transition: transform 0.2s ease;
+    }
+
+    .emoji-display:hover {
+      transform: scale(1.1);
     }
 
     #meter-container {
@@ -79,8 +84,9 @@
       height: 100%;
       background: #f3f4f6;
       border-right: 3px solid #ffffff;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.6s ease;
       position: relative;
+      cursor: pointer;
     }
 
     .segment:last-child {
@@ -109,31 +115,31 @@
       margin: 30px 0;
     }
 
-    button {
+    .circle-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
       background: #1f2937;
       border: none;
       color: white;
-      padding: 14px 24px;
-      font-size: 1.1em;
-      font-weight: 500;
-      border-radius: 12px;
+      font-size: 2em;
+      font-weight: bold;
       cursor: pointer;
       transition: all 0.2s ease;
-      min-width: 70px;
-      font-family: inherit;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
 
-    button:hover {
+    .circle-btn:hover {
       background: #374151;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: scale(1.1);
     }
 
-    button:active {
+    .circle-btn:active {
       background: #111827;
-      transform: translateY(0);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transform: scale(0.95);
     }
 
     .reset-btn {
@@ -143,6 +149,8 @@
       font-size: 1em;
       padding: 12px 28px;
       border-radius: 12px;
+      border: none;
+      cursor: pointer;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
@@ -221,8 +229,8 @@
     <div class="level-display" id="levelDisplay">Level 5</div>
     
     <div class="controls">
-      <button onclick="changeBehavior(-5)" title="Minor Issue">−</button>
-      <button onclick="changeBehavior(5)" title="Good Behavior">+</button>
+      <button class="circle-btn" id="decreaseBtn">−</button>
+      <button class="circle-btn" id="increaseBtn">+</button>
     </div>
     
     <button class="reset-btn" onclick="resetMeter()">🔄 New Day</button>
@@ -235,11 +243,11 @@
     const levelDisplay = document.getElementById("levelDisplay");
 
     const behaviorStages = [
-      { min: 0, max: 20, emoji: "😔", text: "Needs Improvement", color: "#ef4444" },
-      { min: 21, max: 40, emoji: "😕", text: "Could Be Better", color: "#f59e0b" },
-      { min: 41, max: 60, emoji: "😐", text: "Doing Okay", color: "#6b7280" },
-      { min: 61, max: 80, emoji: "🙂", text: "Good Job!", color: "#3b82f6" },
-      { min: 81, max: 100, emoji: "🌟", text: "Amazing Work!", color: "#10b981" }
+      { min: 0, max: 20, emoji: "😔", text: "Needs Improvement", color: "#ef4444", bgColor: "#fca5a5" },
+      { min: 21, max: 40, emoji: "😕", text: "Could Be Better", color: "#f59e0b", bgColor: "#fcd34d" },
+      { min: 41, max: 60, emoji: "😐", text: "Doing Okay", color: "#6b7280", bgColor: "#d1d5db" },
+      { min: 61, max: 80, emoji: "🙂", text: "Good Job!", color: "#3b82f6", bgColor: "#93c5fd" },
+      { min: 81, max: 100, emoji: "🌟", text: "Amazing Work!", color: "#10b981", bgColor: "#86efac" }
     ];
 
     function getCurrentStage() {
@@ -250,30 +258,38 @@
 
     function updateDisplay() {
       const currentStage = getCurrentStage();
-
-      // Update emoji instantly, then pop animation
-      emoji.textContent = currentStage.emoji;
-      emoji.style.transform = "scale(1.2)";
+      
+      document.body.style.backgroundColor = currentStage.bgColor;
+      
+      emoji.style.transform = "scale(0.7) rotate(-5deg)";
       setTimeout(() => {
-        emoji.style.transform = "scale(1)";
+        emoji.textContent = currentStage.emoji;
+        emoji.style.transform = "scale(1.2) rotate(2deg)";
       }, 200);
-
-      // Update text and level instantly
+      setTimeout(() => {
+        emoji.style.transform = "scale(1) rotate(0deg)";
+      }, 400);
+      
       levelText.textContent = currentStage.text;
       levelDisplay.textContent = `Level ${Math.ceil(behaviorLevel / 10)}`;
       
-      // Update segmented meter
       const segments = document.querySelectorAll('.segment');
       const filledSegments = Math.floor((behaviorLevel / 100) * 10);
       
       segments.forEach((segment, index) => {
         segment.className = 'segment';
         if (index < filledSegments) {
-          if (index < 2) segment.classList.add('filled-red');
-          else if (index < 4) segment.classList.add('filled-orange');
-          else if (index < 6) segment.classList.add('filled-gray');
-          else if (index < 8) segment.classList.add('filled-blue');
-          else segment.classList.add('filled-green');
+          if (index < 2) {
+            segment.classList.add('filled-red');
+          } else if (index < 4) {
+            segment.classList.add('filled-orange');
+          } else if (index < 6) {
+            segment.classList.add('filled-gray');
+          } else if (index < 8) {
+            segment.classList.add('filled-blue');
+          } else {
+            segment.classList.add('filled-green');
+          }
         }
       });
       
@@ -307,10 +323,8 @@
       }
     }
 
-    // Initialize
     updateDisplay();
 
-    // Segment click
     document.querySelectorAll('.segment').forEach((segment, index) => {
       segment.addEventListener('click', function() {
         behaviorLevel = (index + 1) * 10;
@@ -318,7 +332,9 @@
       });
     });
 
-    // Keyboard shortcuts
+    document.getElementById("increaseBtn").addEventListener("click", () => changeBehavior(5));
+    document.getElementById("decreaseBtn").addEventListener("click", () => changeBehavior(-5));
+
     document.addEventListener('keydown', function(event) {
       switch(event.key) {
         case '+':
